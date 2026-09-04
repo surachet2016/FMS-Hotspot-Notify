@@ -1,0 +1,5 @@
+# FMS Hotspot network cache freshness monitor
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+* * * * * root /usr/bin/python3 /opt/hermes/scripts/hotspot_network_monitor.py >> /var/log/hotspot-network-monitor.log 2>&1
