@@ -6,6 +6,10 @@ state to fms.pnu.ac.th every ~5 seconds. This script verifies that the
 cache file is fresh and sends a Telegram alert via the DeZee Hermes bot
 if it goes stale.
 
+Cache path: /var/lib/hotspot/network_status.json (configurable via
+NETWORK_STATUS_CACHE_FILE; was /tmp before — Apache PrivateTmp made
+that path unwritable from PHP).
+
 Thresholds:
 - STALE_THRESHOLD_S: 150 seconds (5 min, matches PHP max age)
 - DOWN_THRESHOLD_S: 600 seconds (10 min — page is no longer trustworthy)
@@ -24,8 +28,8 @@ from pathlib import Path
 STALE_THRESHOLD_S = 150
 DOWN_THRESHOLD_S = 600
 
-# Apache private tmp namespace path may change on systemd restart — we glob instead.
-CACHE_GLOB = "/tmp/systemd-private-*-apache2*/tmp/hotspot_network_status.json"
+# Cache file written by PHP at the path set in config.php
+CACHE_FILE = Path("/var/lib/hotspot/network_status.json")
 
 STATE_FILE = Path("/opt/hermes/state/hotspot_network_monitor.json")
 LOCK_FILE = Path("/opt/hermes/state/hotspot_network_monitor.lock")
@@ -33,12 +37,10 @@ LOCK_FILE = Path("/opt/hermes/state/hotspot_network_monitor.lock")
 
 def read_cache_age() -> tuple:
     """Return (age_seconds, fetched_at_iso) or (None, None) if no cache."""
-    candidates = sorted(Path("/tmp").glob("systemd-private-*-apache2*/tmp/hotspot_network_status.json"))
-    if not candidates:
+    if not CACHE_FILE.exists():
         return None, None
-    cache = candidates[-1]
     try:
-        data = json.loads(cache.read_text())
+        data = json.loads(CACHE_FILE.read_text())
     except (OSError, json.JSONDecodeError):
         return None, None
     fetched_at = data.get("fetched_at")
@@ -104,6 +106,7 @@ def main() -> int:
                 "เวลาอัปเดตล่าสุด: {f}\n"
                 "ตรวจสอบ OpenClaw sync daemon บน LAN server (10.11.8.23)"
             ).format(m=minutes, f=fetched_at)
+            level = "down"
         elif age >= STALE_THRESHOLD_S:
             msg = (
                 "[Hotspot Network Monitor] Cache เก่า {a} วินาที\n"
