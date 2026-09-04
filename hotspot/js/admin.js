@@ -368,11 +368,43 @@ async function loadNetworkStatus() {
     const wanLinkUp = json.wan && json.wan.running && json.wan.link !== false && !json.wan.disabled;
     const internetUp = wanLinkUp && json.wan.internet_reachable !== false;
     const lanUp = json.lan && json.lan.running && json.lan.link !== false && !json.lan.disabled;
-    let summary = 'Router ออก Internet ได้ และ Hotspot LAN link พร้อมใช้งาน';
-    if (!internetUp && !lanUp) summary = 'Router ออก Internet ไม่ได้ และ Hotspot LAN link มีปัญหา';
-    else if (!wanLinkUp) summary = 'WAN link มีปัญหา: ตรวจสอบสาย uplink หรืออุปกรณ์ต้นทาง';
-    else if (!internetUp) summary = 'WAN link ปกติ แต่ Internet ออกไม่ได้: ตรวจสอบผู้ให้บริการหรือ gateway';
-    else if (!lanUp) summary = 'Hotspot LAN มีปัญหา: ตรวจสอบ bridge และอุปกรณ์กระจายสัญญาณ';
+
+    // Build per-section status: WAN (university) and LAN (faculty) separately
+    let wanSection, lanSection, rootCause;
+
+    if (wanLinkUp && internetUp) {
+      wanSection = '✅ WAN (มหาวิทยาลัย): ปกติ - ออก Internet ได้';
+    } else if (wanLinkUp && !internetUp) {
+      wanSection = '⚠️ WAN (มหาวิทยาลัย): Link ปกติ แต่ Internet ออกไม่ได้';
+      rootCause = 'มหาวิทยาลัย:';
+    } else {
+      wanSection = '❌ WAN (มหาวิทยาลัย): Link ไม่ขึ้น - สาย uplink หรืออุปกรณ์ต้นทางมีปัญหา';
+      rootCause = 'มหาวิทยาลัย:';
+    }
+
+    if (lanUp) {
+      lanSection = '✅ LAN/Hotspot (คณะ): ปกติ - link พร้อมใช้งาน';
+    } else {
+      lanSection = '❌ LAN/Hotspot (คณะ): Link ไม่ขึ้น - bridge หรืออุปกรณ์กระจายสัญญาณมีปัญหา';
+      if (!rootCause) rootCause = 'คณะ:';
+    }
+
+    // Pick primary diagnosis line
+    let summary;
+    if (wanLinkUp && internetUp && lanUp) {
+      summary = 'Router ออก Internet ได้ และ Hotspot LAN link พร้อมใช้งาน';
+    } else if (!wanLinkUp && !lanUp) {
+      summary = 'ทั้ง WAN และ LAN มีปัญหา: ตรวจสอบ MikroTik router หรือสายอัปลิงค์ - ' + wanSection + ' / ' + lanSection;
+    } else if (!internetUp && !lanUp) {
+      summary = 'Internet ไม่ได้และ LAN มีปัญหา - ตรวจสอบ MikroTik: WAN link ขึ้นแต่ออก Internet ไม่ได้ + LAN link ไม่ขึ้น';
+    } else if (!internetUp) {
+      summary = wanSection + ' - สาเหตุ: ' + rootCause + ' upstream provider / gateway ของมหาวิทยาลัย';
+    } else if (!lanUp) {
+      summary = lanSection + ' - สาเหตุ: อุปกรณ์ภายในคณะ (bridge/AP/switch)';
+    } else {
+      summary = wanSection + ' / ' + lanSection;
+    }
+
     document.getElementById('networkSummary').textContent = summary;
 
     document.getElementById('networkUpdatedAt').textContent = `อัปเดต ${fetchedAt.toLocaleTimeString('th-TH')}`;
