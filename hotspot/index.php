@@ -138,7 +138,7 @@
       <p style="font-size:.85rem;color:#6b7280;margin:0 0 1rem;">ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)</p>
 
       <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">1. ผู้ควบคุมข้อมูล</h3>
-      <p style="margin:0;font-size:.9rem;">FMS Hotspot Management System<br>คณะการจัดการสิ่งแวดล้อม มหาวิทยาลัยสงขลานครินทร์</p>
+      <p style="margin:0;font-size:.9rem;">FMS Hotspot Management System<br>คณะวิทยาการจัดการ มหาวิทยาลัยนราธิวาสราชนครินทร์</p>
 
       <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">2. ข้อมูลที่เก็บรวบรวม</h3>
       <ul style="margin:.3rem 0;font-size:.9rem;padding-left:1.2rem;">
