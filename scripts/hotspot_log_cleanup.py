@@ -16,6 +16,9 @@ from __future__ import annotations
 
 import fcntl
 import gzip
+import subprocess as _sp_for_gpg
+
+# GPG encryption helper (optional - uses AES-256 if gpg is available)
 import json
 import shutil
 import subprocess
@@ -74,9 +77,32 @@ def archive_old_logs():
         date_str, n_str, rows_json = parts
         n = int(n_str)
         archive_file = ARCHIVE_DIR / f"hotspot-{date_str}.json.gz"
-        if not archive_file.exists():
+        archive_file_gpg = ARCHIVE_DIR / f"hotspot-{date_str}.json.gz.gpg"
+        if not archive_file_gpg.exists() and not archive_file.exists():
+            # Write gzipped json first
             with gzip.open(archive_file, "wt", encoding="utf-8") as f:
                 f.write(rows_json)
+            # Try to encrypt with GPG (AES-256) if available
+            try:
+                r = _sp_for_gpg.run(
+                    ["gpg", "--batch", "--yes", "--symmetric",
+                     "--cipher-algo", "AES256",
+                     "--compress-algo", "none",
+                     "--passphrase-file", "/etc/hermes/gpg-archive-passphrase",
+                     "-o", str(archive_file_gpg),
+                     str(archive_file)],
+                    check=False,
+                    capture_output=True, timeout=60,
+                )
+                if r.returncode == 0:
+                    archive_file.unlink()  # remove plaintext
+                else:
+                    # Keep plaintext if GPG fails (better than losing data)
+                    print(f"GPG encrypt failed for {date_str}, keeping plaintext: {r.stderr.decode()[:200]}", file=__import__('sys').stderr)
+            except FileNotFoundError:
+                pass  # gpg not installed, keep plaintext
+            except Exception as e:
+                print(f"GPG encrypt error: {e}", file=__import__('sys').stderr)
             archived_days += 1
             archived_rows += n
 

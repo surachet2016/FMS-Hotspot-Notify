@@ -214,6 +214,66 @@ $adminUsername = htmlspecialchars($_SESSION['admin_username'] ?? 'Admin');
       <div class="pagination" id="pagination"></div>
     </div>
 
+    <section class="access-log-panel" aria-labelledby="accessLogTitle">
+      <div class="network-panel-header">
+        <h2 id="accessLogTitle" class="network-panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          Access Logs (พ.ร.บ. คอมพิวเตอร์ ม. 26)
+        </h2>
+        <div class="network-panel-actions">
+          <button type="button" class="btn btn-sm" id="refreshLogBtn">Refresh</button>
+          <button type="button" class="btn btn-sm btn-primary" id="exportLogBtn">Export CSV</button>
+        </div>
+      </div>
+      <div class="network-panel-body" style="padding:0.9rem 1.25rem;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:.85rem;">
+          <div>
+            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">From</label>
+            <input type="date" id="logFromDate" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+          </div>
+          <div>
+            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">To</label>
+            <input type="date" id="logToDate" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+          </div>
+          <div>
+            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">Username</label>
+            <input type="text" id="logUsername" placeholder="citizen_id" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+          </div>
+          <div>
+            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">Source IP</label>
+            <input type="text" id="logSrcIp" placeholder="10.12.x.x" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+          </div>
+        </div>
+        <div id="logStats" style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.85rem;margin-bottom:.85rem;">
+          <span class="badge" style="background:#e0e7ff;color:#3730a3;">Logs: <strong id="logTotalCount">—</strong></span>
+          <span class="badge" style="background:#fef3c7;color:#92400e;">Today: <strong id="logTodayCount">—</strong></span>
+          <span class="badge" style="background:#fee2e2;color:#991b1b;">Anomalies: <strong id="logAnomalyCount">—</strong></span>
+          <span class="badge" style="background:#dcfce7;color:#166534;">Oldest: <strong id="logOldestDate">—</strong></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+            <thead>
+              <tr style="background:#f9fafb;border-bottom:2px solid #e5e7eb;">
+                <th style="text-align:left;padding:.5rem .6rem;">When</th>
+                <th style="text-align:left;padding:.5rem .6rem;">User</th>
+                <th style="text-align:left;padding:.5rem .6rem;">IP</th>
+                <th style="text-align:right;padding:.5rem .6rem;">Duration</th>
+                <th style="text-align:right;padding:.5rem .6rem;">Bytes</th>
+                <th style="text-align:center;padding:.5rem .6rem;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody">
+              <tr><td colspan="6" style="padding:1rem;text-align:center;color:#9ca3af;">กำลังโหลด—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:.75rem;color:#6b7280;margin-top:.6rem;">
+          Logs retained >= 90 days per Thailand Computer Crime Act B.E. 2550 Section 26.
+          Archived daily to /var/log/hotspot-logs/, purged after 2 years.
+        </p>
+      </div>
+    </section>
+
   </main>
 
   <!-- Image modal -->
@@ -237,6 +297,7 @@ $adminUsername = htmlspecialchars($_SESSION['admin_username'] ?? 'Admin');
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="../js/access_log.js?v=<?= filemtime(__DIR__."/../js/access_log.js") ?>"></script>
   <script src="../js/admin.js?v=<?= filemtime(__DIR__.'/../js/admin.js') ?>"></script>
 <footer style="margin-top:3rem;padding:1.5rem 1rem;text-align:center;color:#6b7280;font-size:.85rem;border-top:1px solid #e5e7eb;">
     <div style="margin-bottom:.4rem;">
