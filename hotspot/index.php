@@ -111,8 +111,8 @@
         </div>
 
         <div class="form-group" style="margin-top:1rem;">
-          <label style="display:flex;align-items:flex-start;gap:.5rem;cursor:pointer;font-size:.9rem;line-height:1.4;">
-            <input type="checkbox" id="pdpaConsent" name="pdpaConsent" required style="margin-top:.2rem;flex-shrink:0;" />
+          <label for="pdpaConsent" class="pdpa-consent-label">
+            <input type="checkbox" id="pdpaConsent" name="pdpaConsent" required />
             <span>
               ข้าพเจ้ายินยอมให้ FMS Hotspot เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตาม
               <a href="#" id="pdpaPolicyLink" style="color:#0891b2;text-decoration:underline;">เอกสารแจ้งเจตนาการเก็บรวบรวมข้อมูลส่วนบุคคล (PDPA)</a>

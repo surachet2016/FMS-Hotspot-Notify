@@ -502,6 +502,41 @@ dialog::backdrop {
   white-space: nowrap;
 }
 
+/* ── Responsive card + form ── */
+.card { box-sizing: border-box; }
+.form-group { min-width: 0; }
+.form-group label { word-break: break-word; }
+input[type="file"] { max-width: 100%; min-width: 0; }
+
+/* PDPA consent label - keep checkbox aligned, allow text wrap */
+.pdpa-consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  cursor: pointer;
+  font-size: .9rem;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.pdpa-consent-label input[type="checkbox"] {
+  width: auto !important;
+  margin-top: .2rem;
+  flex-shrink: 0;
+  min-width: auto;
+}
+
+/* PDPA modal - responsive padding + max-height */
+.pdpa-modal-content {
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .card { padding: 1.5rem 1rem; }
+  .pdpa-modal-content { padding: 1.2rem; max-height: 85vh; }
+}
+
 @media (max-width: 640px) {
   .dashboard-main { padding: 1rem .75rem; }
   .network-panel-header { align-items: flex-start; padding: .9rem 1rem; }
