@@ -337,7 +337,10 @@ async function loadNetworkStatus() {
       credentials: 'same-origin',
       cache: 'no-store',
     });
-    if (res.status === 401) { window.location.replace('login.php'); return; }
+    if (res.status === 401) {
+      renderNetworkError('API ต้องล็อกอิน');
+      return;
+    }
     const json = await res.json();
     if (!res.ok || json.ok !== true) {
       consecutiveNetworkFailures++;
@@ -376,7 +379,12 @@ async function loadNetworkStatus() {
   } catch (error) {
     consecutiveNetworkFailures++;
     console.warn('Network status refresh failed', error);
-    if (consecutiveNetworkFailures >= 3) {
+    if (window.lastNetworkStatus) {
+      // Keep showing last data with stale label
+      const age = Math.floor((Date.now() - new Date(window.lastNetworkStatus.fetched_at)) / 1000);
+      document.getElementById('networkUpdatedAt').textContent =
+        `ข้อมูลล่าสุดอายุ ${age} วินาที (กำลังลองเชื่อมต่อใหม่)`;
+    } else if (consecutiveNetworkFailures >= 3) {
       renderNetworkError('ไม่สามารถติดต่อบริการตรวจสอบเครือข่ายได้');
     } else {
       document.getElementById('networkUpdatedAt').textContent =
@@ -405,7 +413,10 @@ async function loadMembers(page = 1, status = '', search = '') {
 
   try {
     const res = await fetch(`${API}?${params}`, { credentials: 'same-origin' });
-    if (res.status === 401) { window.location.replace('login.php'); return; }
+    if (res.status === 401) {
+      renderNetworkError('API ต้องล็อกอิน');
+      return;
+    }
     const json = await res.json();
     if (!res.ok) { showGlobalAlert('error', json.error || 'Failed to load members.'); return; }
 

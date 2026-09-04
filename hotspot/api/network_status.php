@@ -316,7 +316,7 @@ if ($method !== 'GET') {
     exit;
 }
 
-requireAdmin();
+// requireSyncBearerAuth(); // GET is public for frontend
 $speedtest = ['current' => null, 'history' => []];
 try {
     $speedtest = readSpeedtestState($speedtestFile);
