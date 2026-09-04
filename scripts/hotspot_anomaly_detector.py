@@ -145,6 +145,59 @@ def check_first_time_ip(state: dict) -> list:
     return alerts
 
 
+
+
+def check_off_hours_login(state):
+    """Detect logins at suspicious hours (02:00-05:00 local time = +07:00)."""
+    rows = query_mysql(
+        "SELECT username, src_ip, login_at FROM hotspot_access_logs "
+        "WHERE event='login' AND login_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR) "
+        "AND HOUR(CONVERT_TZ(login_at, '+00:00', '+07:00')) BETWEEN 2 AND 5 "
+        "ORDER BY login_at DESC LIMIT 20"
+    )
+    alerts = []
+    for username, src_ip, login_at in rows:
+        key = f"offhours:{username}:{login_at}"
+        if state.get(key):
+            continue
+        alerts.append(("off_hours", key,
+            f"[Anomaly] Off-hours login (02:00-05:00 local)\n"
+            f"- User: {username}\n"
+            f"- IP: {src_ip}\n"
+            f"- Login at: {login_at}"))
+    return alerts
+
+
+def check_cookie_lingering(state):
+    """
+    Detect sessions where user walked away while MikroTik HTTP cookie
+    was still valid. logout_at never recorded but traffic is very low.
+    This is NOT a security threat — user will auto-login via cookie.
+    It's a UX issue (wasted bandwidth, exhausted session).
+    """
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')
+    rows = query_mysql(
+        "SELECT username, src_ip, login_at, bytes_in, bytes_out "
+        "FROM hotspot_access_logs "
+        f"WHERE event='login' AND logout_at IS NULL AND login_at < '{cutoff}' "
+        "ORDER BY login_at LIMIT 10"
+    )
+    alerts = []
+    for username, src_ip, login_at, b_in, b_out in rows:
+        total_bytes = (int(b_in or 0) + int(b_out or 0))
+        if total_bytes < 1_000_000:
+            key = f"lingering:{username}:{login_at}"
+            if state.get(key):
+                continue
+            alerts.append(("lingering", key,
+                f"[Anomaly] Idle session (low traffic, no logout)\n"
+                f"- User: {username}\n"
+                f"- IP: {src_ip}\n"
+                f"- Login at: {login_at} (over 2h ago)\n"
+                f"- Bytes: {total_bytes:,} (very low)\n"
+                f"- Likely: MikroTik HTTP cookie still active"))
+    return alerts
+
 def main() -> int:
     LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
     with LOCK_FILE.open("w") as lock:
@@ -168,6 +221,8 @@ def main() -> int:
         all_alerts = []
         try:
             all_alerts.extend(check_long_sessions(state))
+            all_alerts.extend(check_cookie_lingering(state))   # MikroTik cookie still valid
+            all_alerts.extend(check_off_hours_login(state))    # 02:00-05:00 local
             all_alerts.extend(check_ip_burst_per_user(state))
             all_alerts.extend(check_ip_burst_users(state))
             all_alerts.extend(check_first_time_ip(state))
