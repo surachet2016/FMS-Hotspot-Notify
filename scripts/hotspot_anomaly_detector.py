@@ -151,7 +151,7 @@ def check_off_hours_login(state):
     """Detect logins at suspicious hours (02:00-05:00 local time = +07:00)."""
     rows = query_mysql(
         "SELECT username, src_ip, login_at FROM hotspot_access_logs "
-        "WHERE event='login' AND login_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR) "
+        "WHERE event='login' AND login_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) "
         "AND HOUR(CONVERT_TZ(login_at, '+00:00', '+07:00')) BETWEEN 2 AND 5 "
         "ORDER BY login_at DESC LIMIT 20"
     )
