@@ -1,0 +1,4 @@
+gmail_smtp.env
+*.bak
+*.bak2
+__pycache__/

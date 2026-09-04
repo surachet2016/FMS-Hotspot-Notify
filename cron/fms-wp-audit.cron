@@ -1,0 +1,5 @@
+# FMS WordPress audit monitor — runs every minute
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+* * * * * root cd /opt/hermes && /usr/bin/python3 /opt/hermes/scripts/fms_wp_audit_monitor.py >> /var/log/fms-wp-audit.log 2>&1
