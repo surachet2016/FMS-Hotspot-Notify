@@ -110,6 +110,18 @@
           <span>หลังจากสมัครสำเร็จ admin จะทำการตรวจสอบข้อมูลและอนุมัติ</span>
         </div>
 
+        <div class="form-group" style="margin-top:1rem;">
+          <label style="display:flex;align-items:flex-start;gap:.5rem;cursor:pointer;font-size:.9rem;line-height:1.4;">
+            <input type="checkbox" id="pdpaConsent" name="pdpaConsent" required style="margin-top:.2rem;flex-shrink:0;" />
+            <span>
+              ข้าพเจ้ายินยอมให้ FMS Hotspot เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้าตาม
+              <a href="#" id="pdpaPolicyLink" style="color:#0891b2;text-decoration:underline;">เอกสารแจ้งเจตนาการเก็บรวบรวมข้อมูลส่วนบุคคล (PDPA)</a>
+              เพื่อวัตถุประสงค์ในการใช้บริการ Wi-Fi Hotspot เท่านั้น
+            </span>
+          </label>
+          <span class="field-error" id="pdpaConsent-err"></span>
+        </div>
+
         <button type="submit" class="btn btn-primary" id="submitBtn">Register</button>
       </form>
 
@@ -120,5 +132,71 @@
   </div>
 
   <script src="js/register.js"></script>
+  <div id="pdpaModal" class="pdpa-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <div class="pdpa-modal-content" style="background:#fff;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;border-radius:12px;padding:1.5rem;box-shadow:0 10px 40px rgba(0,0,0,.25);">
+      <h2 style="margin:0 0 1rem;font-size:1.2rem;color:#0891b2;">เอกสารแจ้งเจตนาการเก็บรวบรวมข้อมูลส่วนบุคคล</h2>
+      <p style="font-size:.85rem;color:#6b7280;margin:0 0 1rem;">ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)</p>
+
+      <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">1. ผู้ควบคุมข้อมูล</h3>
+      <p style="margin:0;font-size:.9rem;">FMS Hotspot Management System<br>คณะการจัดการสิ่งแวดล้อม มหาวิทยาลัยสงขลานครินทร์</p>
+
+      <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">2. ข้อมูลที่เก็บรวบรวม</h3>
+      <ul style="margin:.3rem 0;font-size:.9rem;padding-left:1.2rem;">
+        <li>ชื่อ-นามสกุล</li>
+        <li>อีเมล</li>
+        <li>รหัสบัตรประจำตัวประชาชน</li>
+        <li>วันเกิด</li>
+        <li>รูปภาพบัตรประจำตัว (เพื่อยืนยันตัวตน)</li>
+        <li>ข้อมูลการเข้าใช้งาน Wi-Fi (username, IP, เวลาเชื่อมต่อ)</li>
+      </ul>
+
+      <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">3. วัตถุประสงค์</h3>
+      <ul style="margin:.3rem 0;font-size:.9rem;padding-left:1.2rem;">
+        <li>ยืนยันตัวตนผู้ใช้บริการ Wi-Fi Hotspot</li>
+        <li>ตรวจสอบสิทธิ์การเข้าถึงเครือข่าย</li>
+        <li>บำรุงรักษาระบบและแก้ไขปัญหา</li>
+        <li>ปฏิบัติตามกฎหมายและข้อบังคับของมหาวิทยาลัย</li>
+      </ul>
+
+      <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">4. ระยะเวลาเก็บรักษา</h3>
+      <p style="margin:0;font-size:.9rem;">ตลอดระยะเวลาที่ใช้บริการ และ 90 วันหลังยกเลิกการใช้งาน จากนั้นลบ/ทำลายตามระเบียบ</p>
+
+      <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">5. สิทธิ์ของท่าน</h3>
+      <ul style="margin:.3rem 0;font-size:.9rem;padding-left:1.2rem;">
+        <li>ขอเข้าถึง/แก้ไข/ลบข้อมูล</li>
+        <li>ถอนความยินยอมได้ทุกเมื่อ (ติดต่อ admin)</li>
+        <li>ร้องเรียนต่อหน่วยงานคุ้มครองข้อมูล</li>
+      </ul>
+
+      <h3 style="font-size:.95rem;margin:1rem 0 .4rem;">6. Cookies</h3>
+      <p style="margin:0;font-size:.9rem;">เว็บไซต์ใช้ session cookie สำหรับยืนยันตัวตน admin เท่านั้น ไม่มีการติดตามหรือโฆษณา</p>
+
+      <div style="margin-top:1.5rem;text-align:right;">
+        <button type="button" id="pdpaCloseBtn" class="btn btn-primary">เข้าใจและปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top:3rem;padding:1.5rem 1rem;text-align:center;color:#6b7280;font-size:.85rem;">
+    <div style="margin-bottom:.4rem;">
+      Create by <strong style="color:#374151;">FMS: Information Technology Team</strong>
+    </div>
+    <div>
+      &copy; <?= date('Y') ?> FMS Hotspot Management System. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('pdpaPolicyLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('pdpaModal').style.display = 'flex';
+    });
+    document.getElementById('pdpaCloseBtn').addEventListener('click', function() {
+      document.getElementById('pdpaModal').style.display = 'none';
+    });
+    document.getElementById('pdpaModal').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+  </script>
 </body>
 </html>

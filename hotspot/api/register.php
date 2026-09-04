@@ -15,6 +15,20 @@ $email     = trim($_POST['email']     ?? '');
 $citizenId = trim($_POST['citizenId'] ?? '');
 $dob       = trim($_POST['dob']       ?? '');
 $profile   =      $_POST['profile']   ?? '';
+$pdpaConsent = trim($_POST['pdpaConsent'] ?? '');
+
+// PDPA: user must explicitly consent before registration can proceed
+if ($pdpaConsent !== 'on') {
+    http_response_code(400);
+    echo json_encode(['error' => 'กรุณายอมรับเงื่อนไขการเก็บรวบรวมข้อมูลส่วนบุคคล (PDPA) ก่อนสมัคร']);
+    exit;
+}
+
+// Record consent evidence: IP + user agent + timestamp + policy version
+$pdpaConsentAt    = gmdate('c');
+$pdpaConsentIp    = $_SERVER['REMOTE_ADDR'] ?? '';
+$pdpaConsentUa    = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 256);
+$pdpaConsentVer   = '1.0';
 
 // ── Rate limiting by citizenId (แก้ปัญหา NAT: หลาย IP แชร์ IP เดียวกัน) ───
 // ใช้ citizenId เป็น key แทน IP — ถ้าไม่มี citizenId ใช้ IP เป็น fallback
@@ -150,10 +164,10 @@ try {
     }
 
     $stmt = $pdo->prepare(
-        'INSERT INTO members (id, full_name, email, citizen_id, dob, profile, id_card_image, id_card_mime, status)
-         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, "ACTIVE")'
+        "INSERT INTO members (id, full_name, email, citizen_id, dob, profile, id_card_image, id_card_mime, status, pdpa_consent_at, pdpa_consent_ip, pdpa_consent_ua, pdpa_consent_ver)
+         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?)"
     );
-    $stmt->execute([$fullName, $email, $citizenId, $dob, $profile, $blob, $mime]);
+    $stmt->execute([$fullName, $email, $citizenId, $dob, $profile, $blob, $mime, $pdpaConsentAt, $pdpaConsentIp, $pdpaConsentUa, $pdpaConsentVer]);
 
     http_response_code(201);
     echo json_encode(['message' => 'ลงทะเบียนสำเร็จ สามารถเชื่อมต่อ Hotspot ได้ทันที (ผู้ดูแลจะตรวจสอบภาพบัตรประชาชนภายหลัง)']);

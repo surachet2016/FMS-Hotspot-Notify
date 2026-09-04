@@ -238,5 +238,13 @@ $adminUsername = htmlspecialchars($_SESSION['admin_username'] ?? 'Admin');
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
   <script src="../js/admin.js?v=<?= filemtime(__DIR__.'/../js/admin.js') ?>"></script>
+<footer style="margin-top:3rem;padding:1.5rem 1rem;text-align:center;color:#6b7280;font-size:.85rem;border-top:1px solid #e5e7eb;">
+    <div style="margin-bottom:.4rem;">
+      Create by <strong style="color:#374151;">FMS: Information Technology Team</strong>
+    </div>
+    <div>
+      &copy; <?= date('Y') ?> FMS Hotspot Management System. All rights reserved.
+    </div>
+  </footer>
 </body>
 </html>
