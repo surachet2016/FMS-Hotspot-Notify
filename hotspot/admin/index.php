@@ -225,50 +225,50 @@ $adminUsername = htmlspecialchars($_SESSION['admin_username'] ?? 'Admin');
           <button type="button" class="btn btn-sm btn-primary" id="exportLogBtn">Export CSV</button>
         </div>
       </div>
-      <div class="network-panel-body" style="padding:0.9rem 1.25rem;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:.85rem;">
-          <div>
-            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">From</label>
-            <input type="date" id="logFromDate" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+      <div class="network-panel-body" style="padding:1rem 1.25rem 1.25rem;">
+        <div class="alog-filters">
+          <div class="alog-field">
+            <label>From</label>
+            <input type="date" id="logFromDate">
           </div>
-          <div>
-            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">To</label>
-            <input type="date" id="logToDate" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+          <div class="alog-field">
+            <label>To</label>
+            <input type="date" id="logToDate">
           </div>
-          <div>
-            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">Username</label>
-            <input type="text" id="logUsername" placeholder="citizen_id" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+          <div class="alog-field">
+            <label>Username</label>
+            <input type="text" id="logUsername" placeholder="citizen_id">
           </div>
-          <div>
-            <label style="font-size:.75rem;color:#6b7280;font-weight:600;">Source IP</label>
-            <input type="text" id="logSrcIp" placeholder="10.12.x.x" style="width:100%;padding:.4rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+          <div class="alog-field">
+            <label>Source IP</label>
+            <input type="text" id="logSrcIp" placeholder="10.12.x.x">
           </div>
         </div>
-        <div id="logStats" style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.85rem;margin-bottom:.85rem;">
-          <span class="badge" style="background:#e0e7ff;color:#3730a3;">Logs: <strong id="logTotalCount">—</strong></span>
-          <span class="badge" style="background:#fef3c7;color:#92400e;">Today: <strong id="logTodayCount">—</strong></span>
-          <span class="badge" style="background:#fee2e2;color:#991b1b;">Anomalies: <strong id="logAnomalyCount">—</strong></span>
-          <span class="badge" style="background:#dcfce7;color:#166534;">Oldest: <strong id="logOldestDate">—</strong></span>
+        <div class="alog-stats" id="logStats">
+          <span class="alog-stat s-logs">Logs <strong id="logTotalCount">—</strong></span>
+          <span class="alog-stat s-today">Today <strong id="logTodayCount">—</strong></span>
+          <span class="alog-stat s-anom">Anomalies <strong id="logAnomalyCount">—</strong></span>
+          <span class="alog-stat s-oldest">Oldest <strong id="logOldestDate">—</strong></span>
         </div>
-        <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+        <div class="alog-table-wrap">
+          <table class="alog-table">
             <thead>
-              <tr style="background:#f9fafb;border-bottom:2px solid #e5e7eb;">
-                <th style="text-align:left;padding:.5rem .6rem;">When</th>
-                <th style="text-align:left;padding:.5rem .6rem;">User</th>
-                <th style="text-align:left;padding:.5rem .6rem;">IP</th>
-                <th style="text-align:right;padding:.5rem .6rem;">Duration</th>
-                <th style="text-align:right;padding:.5rem .6rem;">Bytes</th>
-                <th style="text-align:center;padding:.5rem .6rem;">Status</th>
+              <tr>
+                <th>When</th>
+                <th>User</th>
+                <th>IP</th>
+                <th class="ta-r">Duration</th>
+                <th class="ta-r">Bytes</th>
+                <th class="ta-c">Status</th>
               </tr>
             </thead>
             <tbody id="logTableBody">
-              <tr><td colspan="6" style="padding:1rem;text-align:center;color:#9ca3af;">กำลังโหลด—</td></tr>
+              <tr><td colspan="6" style="padding:1rem;text-align:center;color:#9ca3af;">กำลังโหลด…</td></tr>
             </tbody>
           </table>
         </div>
-        <p style="font-size:.75rem;color:#6b7280;margin-top:.6rem;">
-          Logs retained >= 90 days per Thailand Computer Crime Act B.E. 2550 Section 26.
+        <p class="alog-footnote">
+          Logs retained &ge; 90 days per Thailand Computer Crime Act B.E. 2550 Section 26.
           Archived daily to /var/log/hotspot-logs/, purged after 2 years.
         </p>
       </div>

@@ -103,19 +103,24 @@ function renderLogPage() {
   tbody.innerHTML = pageRows.map(r => {
     const isLong = r.duration_s && r.duration_s > 6 * 3600;
     const isActive = r.event === 'login' && !r.logout_at;
-    const statusBadge = isActive
-      ? '<span class="badge" style="background:#dcfce7;color:#166534;">Active</span>'
-      : (isLong
-        ? '<span class="badge" style="background:#fee2e2;color:#991b1b;" title="Long session (>6h)">⚠️ Long</span>'
-        : '<span class="badge" style="background:#f3f4f6;color:#374151;">' + r.event + '</span>');
+    let pill;
+    if (isActive) {
+      pill = '<span class="alog-pill p-active">Active</span>';
+    } else if (isLong) {
+      pill = '<span class="alog-pill p-long" title="Long session (>6h)">⚠️ Long</span>';
+    } else if (r.event === 'update') {
+      pill = '<span class="alog-pill p-update">update</span>';
+    } else {
+      pill = '<span class="alog-pill p-logout">' + escapeHtml(r.event) + '</span>';
+    }
     const bytes = fmtBytes((+r.bytes_in || 0) + (+r.bytes_out || 0));
-    return '<tr style="border-bottom:1px solid #f3f4f6;">' +
-      '<td style="padding:.5rem .6rem;">' + fmtDate(r.login_at) + '</td>' +
-      '<td style="padding:.5rem .6rem;">' + escapeHtml(r.username || '-') + '</td>' +
-      '<td style="padding:.5rem .6rem;font-family:monospace;font-size:.8rem;">' + escapeHtml(r.src_ip || '-') + '</td>' +
-      '<td style="padding:.5rem .6rem;text-align:right;">' + fmtDuration(r.duration_s) + '</td>' +
-      '<td style="padding:.5rem .6rem;text-align:right;">' + bytes + '</td>' +
-      '<td style="padding:.5rem .6rem;text-align:center;">' + statusBadge + '</td>' +
+    return '<tr>' +
+      '<td data-label="When" class="alog-col-time">' + fmtDate(r.login_at) + '</td>' +
+      '<td data-label="User" class="alog-col-user">' + escapeHtml(r.username || '-') + '</td>' +
+      '<td data-label="IP" class="alog-col-ip">' + escapeHtml(r.src_ip || '-') + '</td>' +
+      '<td data-label="Duration" class="alog-col-dur">' + fmtDuration(r.duration_s) + '</td>' +
+      '<td data-label="Bytes" class="alog-col-bytes">' + bytes + '</td>' +
+      '<td data-label="Status" class="alog-col-status">' + pill + '</td>' +
       '</tr>';
   }).join('');
 
@@ -127,9 +132,9 @@ function renderLogPagination() {
   if (!bar) {
     bar = document.createElement('div');
     bar.id = 'logPagination';
-    bar.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:.4rem;flex-wrap:wrap;margin-top:.85rem;';
-    const tbl = document.getElementById('logTableBody').closest('table');
-    tbl.parentNode.insertBefore(bar, tbl.nextSibling);
+    const wrap = document.getElementById('logTableBody').closest('.alog-table-wrap') ||
+                 document.getElementById('logTableBody').closest('table');
+    wrap.parentNode.insertBefore(bar, wrap.nextSibling);
   }
 
   const rows = _logRows;
@@ -140,14 +145,10 @@ function renderLogPagination() {
   const end = Math.min(_logPage * LOG_PAGE_SIZE, rows.length);
 
   const btn = (label, page, disabled, active) =>
-    '<button type="button" data-page="' + page + '" ' +
-    (disabled ? 'disabled ' : '') +
-    'style="min-width:34px;padding:.35rem .6rem;border:1px solid ' +
-    (active ? '#0891b2' : '#d1d5db') + ';border-radius:6px;cursor:' +
-    (disabled ? 'not-allowed' : 'pointer') + ';background:' +
-    (active ? '#0891b2' : '#fff') + ';color:' +
-    (active ? '#fff' : (disabled ? '#9ca3af' : '#374151')) +
-    ';font-size:.85rem;">' + label + '</button>';
+    '<button type="button" data-page="' + page + '"' +
+    (disabled ? ' disabled' : '') +
+    (active ? ' class="active"' : '') +
+    '>' + label + '</button>';
 
   // Build compact windowed page list
   let pages = [];
@@ -160,12 +161,11 @@ function renderLogPagination() {
     }
   }
 
-  let html = '<span style="font-size:.8rem;color:#6b7280;margin-right:.5rem;">' +
-    start + '-' + end + ' / ' + rows.length + ' รายการ</span>';
+  let html = '<span class="pg-info">' + start + '-' + end + ' / ' + rows.length + ' รายการ</span>';
   html += btn('&laquo;', _logPage - 1, _logPage <= 1, false);
   for (const p of pages) {
     if (p === '...') {
-      html += '<span style="padding:0 .3rem;color:#9ca3af;">…</span>';
+      html += '<span class="pg-ellipsis">…</span>';
     } else {
       html += btn(String(p), p, false, p === _logPage);
     }
