@@ -52,6 +52,10 @@ async function loadAccessLogs() {
   }
 }
 
+let _logRows = [];
+let _logPage = 1;
+const LOG_PAGE_SIZE = 20;
+
 function renderAccessLogs(json) {
   const rows = json.rows || [];
   const count = json.count || 0;
@@ -67,15 +71,29 @@ function renderAccessLogs(json) {
   document.getElementById('logAnomalyCount').textContent = longSessions.toLocaleString();
   document.getElementById('logOldestDate').textContent = oldestDate;
 
-  // Table rows
+  // Store rows globally + reset to page 1, then render current page
+  _logRows = rows;
+  _logPage = 1;
+  renderLogPage();
+}
+
+function renderLogPage() {
   const tbody = document.getElementById('logTableBody');
+  const rows = _logRows;
   if (rows.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" style="padding:1rem;text-align:center;color:#9ca3af;">ไม่พบรายการ</td></tr>';
+    renderLogPagination();
     return;
   }
 
-  const top = rows.slice(0, 50);
-  tbody.innerHTML = top.map(r => {
+  const totalPages = Math.max(1, Math.ceil(rows.length / LOG_PAGE_SIZE));
+  if (_logPage > totalPages) _logPage = totalPages;
+  if (_logPage < 1) _logPage = 1;
+
+  const start = (_logPage - 1) * LOG_PAGE_SIZE;
+  const pageRows = rows.slice(start, start + LOG_PAGE_SIZE);
+
+  tbody.innerHTML = pageRows.map(r => {
     const isLong = r.duration_s && r.duration_s > 6 * 3600;
     const isActive = r.event === 'login' && !r.logout_at;
     const statusBadge = isActive
@@ -93,6 +111,67 @@ function renderAccessLogs(json) {
       '<td style="padding:.5rem .6rem;text-align:center;">' + statusBadge + '</td>' +
       '</tr>';
   }).join('');
+
+  renderLogPagination();
+}
+
+function renderLogPagination() {
+  let bar = document.getElementById('logPagination');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'logPagination';
+    bar.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:.4rem;flex-wrap:wrap;margin-top:.85rem;';
+    const tbl = document.getElementById('logTableBody').closest('table');
+    tbl.parentNode.insertBefore(bar, tbl.nextSibling);
+  }
+
+  const rows = _logRows;
+  const totalPages = Math.max(1, Math.ceil(rows.length / LOG_PAGE_SIZE));
+  if (rows.length === 0) { bar.innerHTML = ''; return; }
+
+  const start = (_logPage - 1) * LOG_PAGE_SIZE + 1;
+  const end = Math.min(_logPage * LOG_PAGE_SIZE, rows.length);
+
+  const btn = (label, page, disabled, active) =>
+    '<button type="button" data-page="' + page + '" ' +
+    (disabled ? 'disabled ' : '') +
+    'style="min-width:34px;padding:.35rem .6rem;border:1px solid ' +
+    (active ? '#0891b2' : '#d1d5db') + ';border-radius:6px;cursor:' +
+    (disabled ? 'not-allowed' : 'pointer') + ';background:' +
+    (active ? '#0891b2' : '#fff') + ';color:' +
+    (active ? '#fff' : (disabled ? '#9ca3af' : '#374151')) +
+    ';font-size:.85rem;">' + label + '</button>';
+
+  // Build compact windowed page list
+  let pages = [];
+  const win = 2;
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || (p >= _logPage - win && p <= _logPage + win)) {
+      pages.push(p);
+    } else if (pages[pages.length - 1] !== '...') {
+      pages.push('...');
+    }
+  }
+
+  let html = '<span style="font-size:.8rem;color:#6b7280;margin-right:.5rem;">' +
+    start + '-' + end + ' / ' + rows.length + ' รายการ</span>';
+  html += btn('&laquo;', _logPage - 1, _logPage <= 1, false);
+  for (const p of pages) {
+    if (p === '...') {
+      html += '<span style="padding:0 .3rem;color:#9ca3af;">…</span>';
+    } else {
+      html += btn(String(p), p, false, p === _logPage);
+    }
+  }
+  html += btn('&raquo;', _logPage + 1, _logPage >= totalPages, false);
+  bar.innerHTML = html;
+
+  bar.querySelectorAll('button[data-page]').forEach(b => {
+    b.addEventListener('click', () => {
+      const p = parseInt(b.getAttribute('data-page'), 10);
+      if (!isNaN(p)) { _logPage = p; renderLogPage(); }
+    });
+  });
 }
 
 function escapeHtml(s) {
