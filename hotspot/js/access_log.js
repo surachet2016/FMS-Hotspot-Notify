@@ -19,8 +19,15 @@ function fmtDuration(s) {
 
 function fmtDate(s) {
   if (!s) return '-';
-  const d = new Date(s.replace(' ', 'T'));
-  return d.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+  // DB stores UTC ("YYYY-MM-DD HH:MM:SS"). Append 'Z' so JS parses it as
+  // UTC, then toLocaleString renders it in Thailand time (UTC+7).
+  const iso = s.replace(' ', 'T') + (/[Z+]/.test(s) ? '' : 'Z');
+  const d = new Date(iso);
+  return d.toLocaleString('th-TH', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    timeZone: 'Asia/Bangkok'
+  });
 }
 
 async function loadAccessLogs() {
