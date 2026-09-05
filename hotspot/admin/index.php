@@ -28,14 +28,10 @@ $adminUsername = htmlspecialchars($_SESSION['admin_username'] ?? 'Admin');
         <button type="button" class="refresh-btn" data-interval="300">5m</button>
         <span id="refreshCountdown" style="font-size:.78rem;opacity:.75;min-width:4rem;"></span>
       </div>
-      <a href="change_password.php" class="btn btn-sm"
-         style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);text-decoration:none;margin-right:.4rem;">
-        Change Password
-      </a>
-      <a href="logout.php" class="btn btn-sm"
-         style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);text-decoration:none;">
-        Sign Out
-      </a>
+      <div class="navbar-nav-links">
+        <a href="change_password.php" class="btn btn-sm nav-link-btn">Change Password</a>
+        <a href="logout.php" class="btn btn-sm nav-link-btn">Sign Out</a>
+      </div>
     </div>
   </nav>
 

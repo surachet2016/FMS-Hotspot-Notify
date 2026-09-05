@@ -108,6 +108,8 @@ input.error { border-color: #ef4444; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: .75rem;
+  flex-wrap: wrap;
 }
 .navbar-brand { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: .5rem; }
 .navbar-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
@@ -691,4 +693,56 @@ input[type="file"] { max-width: 100%; min-width: 0; }
   .alog-col-ip { text-align: right; }
   .alog-stats { gap: .4rem; }
   .alog-stat { flex: 1 1 calc(50% - .4rem); justify-content: center; }
+}
+
+/* ── Navbar nav-link buttons (desktop base) ── */
+.navbar-nav-links { display: flex; align-items: center; gap: .4rem; }
+.nav-link-btn {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.3);
+  text-decoration: none;
+  border-radius: 6px;
+  padding: .4rem .75rem;
+  font-size: .82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.nav-link-btn:hover { background: rgba(255,255,255,.28); }
+
+/* ── Navbar responsive (mobile) ── */
+@media (max-width: 680px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: .8rem 1rem;
+    gap: .7rem;
+  }
+  .navbar-brand {
+    justify-content: center;
+    font-size: 1rem;
+    padding-bottom: .6rem;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+  }
+  .navbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .6rem;
+  }
+  .navbar-actions > span#adminName {
+    text-align: center; font-size: .9rem; opacity: 1; font-weight: 600;
+  }
+  .auto-refresh-group {
+    justify-content: center;
+    flex-wrap: wrap;
+    background: rgba(255,255,255,.08);
+    padding: .5rem;
+    border-radius: 8px;
+  }
+  .auto-refresh-group > span:first-child { width: 100%; text-align: center; margin-bottom: .2rem; }
+  .refresh-btn { flex: 1 1 auto; min-width: 52px; text-align: center; padding: .45rem .5rem; }
+  #refreshCountdown { width: 100%; text-align: center; }
+  .navbar-nav-links { display: flex; gap: .5rem; }
+  .nav-link-btn { flex: 1 1 50%; text-align: center; padding: .6rem .5rem; }
 }
